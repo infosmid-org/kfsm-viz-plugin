@@ -20,10 +20,13 @@ class VizPlugin implements Plugin<Project> {
 
     void apply(Project project) {
         def kfsmViz = project.extensions.create(KFSM_VIZ, VizPluginExtension)
-        project.tasks.register('generateFsmViz', KFSMVizualisationTask) { task ->
+        def vizTask = project.tasks.register('generateFsmViz', KFSMVizualisationTask) { task ->
             group = 'documentation'
-            doFirst {
-                task.configureTask(project.extensions.findByType(VizPluginExtension))
+        }
+        // inputs and outputs must be declared before execution for up-to-date checks
+        project.afterEvaluate {
+            vizTask.configure { task ->
+                task.configureTask(kfsmViz)
             }
         }
     }

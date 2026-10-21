@@ -34,11 +34,6 @@ class KFSMVizualisationTask extends DefaultTask {
 
     @TaskAction
     def generateVisualization() {
-        if (fsmParams.isEmpty()) {
-            project.logger.debug("Configuring in action")
-            def kfsmViz = project.extensions.findByType(VizPluginExtension)
-            configureTask(kfsmViz)
-        }
         fsmParams.forEach {
             project.logger.lifecycle("${this.name}:reading ${it.className} from ${it.input}")
             assert it.input.exists()

@@ -5,19 +5,39 @@
 |===
 | Start | Event[Guard] | Target | Action
 
+| <<start>>
+| 
+| LOCKED
+a| 
+
 | LOCKED
 | COIN
 | UNLOCKED
-|  `{unlock()}`
+a| [source,kotlin]
+----
+{
+unlock()
+}
+----
 
 | UNLOCKED
 | COIN
 | UNLOCKED
-|  `{returnCoin()}`
+a| [source,kotlin]
+----
+{
+returnCoin()
+}
+----
 
 | UNLOCKED
 | PASS
 | LOCKED
-|  `{lock()}`
+a| [source,kotlin]
+----
+{
+lock()
+}
+----
 |===
 

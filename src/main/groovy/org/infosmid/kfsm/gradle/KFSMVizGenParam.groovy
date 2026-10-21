@@ -9,7 +9,7 @@
  */
 package org.infosmid.kfsm.gradle
 
-class KFSMVizGenParam {
+class KFSMVizGenParam implements Serializable {
     String className
     File input
     File outputPlantUml = null

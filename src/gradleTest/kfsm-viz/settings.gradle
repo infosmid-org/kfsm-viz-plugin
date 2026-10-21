@@ -1,1 +1,7 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+}
 rootProject.name = 'kfsm-viz-plugin-test'
