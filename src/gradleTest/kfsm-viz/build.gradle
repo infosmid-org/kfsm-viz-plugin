@@ -1,24 +1,9 @@
-//buildscript {
-//    repositories {
-//        mavenLocal()
-//        maven {
-//            url "https://plugins.gradle.org/m2/"
-//        }
-//        jcenter()
-//        mavenCentral()
-//    }
-//    dependencies {
-//        classpath 'io.jumpco.kfsm.open:kfsm-viz-plugin:1.0.7'
-//    }
-//}
+plugins {
+    id 'org.infosmid.plugins.kfsm-viz'
+}
 
-apply plugin: 'io.jumpco.open.kfsm.viz-plugin'
 
-//plugins {
-//    id 'io.jumpco.open.kfsm.viz-plugin' version '1.0.7'
-//}
-
-task runGradleTest {
+tasks.register('runGradleTest') {
     dependsOn 'generateFsmViz'
 }
 

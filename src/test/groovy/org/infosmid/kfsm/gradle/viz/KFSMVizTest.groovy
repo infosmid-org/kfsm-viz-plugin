@@ -7,7 +7,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package io.jumpco.open.kfsm.gradle.viz
+package org.infosmid.kfsm.gradle.viz
 
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Before
@@ -26,7 +26,7 @@ class KFSMVizTest {
     @Before
     public void setup() {
         buildFile = testProjectDir.newFile('build.gradle')
-        buildFile << "plugins { id 'io.jumpco.open.kfsm.viz-plugin' } "
+        buildFile << "plugins { id 'org.infosmid.plugins.kfsm-viz' } "
 
         copy(new File('src/test/resources'), buildFile.parentFile)
     }

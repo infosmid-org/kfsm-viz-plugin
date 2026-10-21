@@ -7,10 +7,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package io.jumpco.open.kfsm.gradle
+package org.infosmid.kfsm.gradle
 
 import org.gradle.api.Action
-import org.gradle.util.ConfigureUtil
 
 class VizPluginExtension {
 
@@ -24,7 +23,9 @@ class VizPluginExtension {
     def fsm(String className, Closure closure) {
         def fsm = new KFSMVizPluginExtension(className)
         fsms += fsm
-        ConfigureUtil.configure(closure, fsm)
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.delegate = fsm
+        closure.call(fsm)
         return fsm
     }
 

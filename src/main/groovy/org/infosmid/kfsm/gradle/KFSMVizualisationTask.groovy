@@ -7,21 +7,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package io.jumpco.open.kfsm.gradle
+package org.infosmid.kfsm.gradle
 
 
-import io.jumpco.open.kfsm.viz.Parser
-import io.jumpco.open.kfsm.viz.Visualization
+import org.infosmid.kfsm.viz.Parser
+import org.infosmid.kfsm.viz.Visualization
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFiles
+import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 
+@CacheableTask
 class KFSMVizualisationTask extends DefaultTask {
     @OutputFiles
     Set<File> outputFiles = new HashSet<>()
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     Set<File> inputFiles = new HashSet<>()
 
     @Input

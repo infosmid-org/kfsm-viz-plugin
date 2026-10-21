@@ -1,4 +1,4 @@
-plugins { id 'io.jumpco.open.kfsm.viz-plugin' } 
+plugins { id 'org.infosmid.plugins.kfsm-viz' } 
     kfsmViz {
         fsm('PacketReaderFSM') {
             input = file('PacketReader.kt')

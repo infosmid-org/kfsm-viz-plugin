@@ -1,140 +1,102 @@
 plugins {
     id 'groovy'
-    id 'java'
     id 'java-gradle-plugin'
     id 'maven-publish'
-    id 'signing'
-    id 'com.gradle.plugin-publish' version '0.12.0'
-    // id 'org.ysb33r.gradletest' version '2.0'
+    alias(libs.plugins.maven.publish)
+    alias(libs.plugins.gradle.plugin.publish)
 }
 
-group 'io.jumpco.open'
-version '1.5.2.4'
-
-targetCompatibility = 1.8
+group = 'org.infosmid.plugins'
+def getVersionFromFile() {
+    return new File(rootProject.projectDir, 'version.txt').text.trim()
+}
+version = providers.gradleProperty('releaseVersion').getOrNull() ?: getVersionFromFile()
+description = 'KFSM Visualization plugin for plantuml and asciidoc'
+def projectName = 'KFSM Visualization plugin'
+def projectDescription = project.description
 
 repositories {
     mavenLocal()
     mavenCentral()
 }
 
-pluginBundle {
-    website = 'https://open.jumpco.io/projects/kfsm-viz.html'
-    vcsUrl = 'https://github.com/open-jumpco/kfsm-viz-plugin'
-    plugins {
-        kfsmVizPlugin {
-            displayName = 'KFSM Visualization plugin'
-            description = 'KFSM Visualization plugin for plantuml and asciidoc'
-            tags = ['fsm', 'kotlin', 'plantuml', 'asciidoc', 'visualize']
-            version = project.version
-        }
-    }
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+    options.encoding = 'UTF-8'
 }
 
 gradlePlugin {
+    website.set('https://github.com/infosmid-org/kfsm-viz-plugin')
+    vcsUrl.set('https://github.com/infosmid-org/kfsm-viz-plugin')
     plugins {
-        kfsmVizPlugin {
-            id = 'io.jumpco.open.kfsm.viz-plugin'
-            implementationClass = 'io.jumpco.open.kfsm.gradle.VizPlugin'
-            version = project.version
+        register('kfsmVizPlugin') {
+            id = 'org.infosmid.plugins.kfsm-viz'
+            implementationClass = 'org.infosmid.kfsm.gradle.VizPlugin'
+            displayName = projectName
+            description = projectDescription
+            tags.set(['fsm', 'kotlin', 'plantuml', 'asciidoc', 'visualize'])
         }
     }
 }
 
-//gradleTest {
-//    versions '6.8.3', '6.7.1', '6.6.1', '6.5.1'
-//    versions '5.4.1', '5.5.1', '5.6.2'
-//
-//    beforeTest {
-//        println "  ${it.name}"
-//    }
-//}
-
 dependencies {
-    compileOnly gradleApi()
-    compileOnly 'org.codehaus.groovy:groovy-all:2.5.14'
-
-
-    implementation 'io.jumpco.open:kfsm-viz:1.5.2.4'
-    testCompileOnly 'org.codehaus.groovy:groovy-all:2.5.14'
-    testImplementation 'junit:junit:4.13'
-    testImplementation 'org.assertj:assertj-core:3.6.2'
-    testCompileOnly gradleTestKit()
-    testCompile group: 'org.spockframework', name: 'spock-core', version: '1.3-groovy-2.5'
-}
-
-groovydoc {
-    use = true
-    source = sourceSets.main.groovy
-    windowTitle = 'KFSM Visualization Gradle Plugin'
-    docTitle = "Groovy API for KFSM Visualization Gradle Plugin"
-}
-
-task sourcesJar(type:Jar) {
-    from fileTree(dir:'src/main/groovy')
-    archiveClassifier = 'sources'
-}
-
-task javadocJar(type: Jar) {
-    from groovydoc
-    archiveClassifier = 'javadoc'
-}
-
-artifacts {
-    archives jar
-    archives javadocJar
+    implementation libs.kfsm.viz
+    testImplementation libs.junit
+    testImplementation libs.assertj.core
+    testImplementation gradleTestKit()
 }
 
 publishing {
     repositories {
         maven {
-            logger.lifecycle("maven:publish:version=$version")
-            def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots'
-            def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
-            url = rootProject.version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            name = 'GitHubPackages'
+            url = uri("https://maven.pkg.github.com/infosmid-org/${rootProject.name}")
             credentials {
-                username rootProject.ext.find('ossJiraUser') ?: System.getenv('OSS_JIRA_USER')
-                password rootProject.ext.find('ossJiraPwd') ?: System.getenv('OSS_JIRA_PWD')
-            }
-        }
-    }
-
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId = 'kfsm-viz-plugin'
-            from components.java
-            withBuildIdentifier()
-            artifact sourcesJar
-            artifact javadocJar
-
-            pom {
-                name = 'KFSM Visualization'
-                description = 'Visualization library for KFSM finite state-machine definitions'
-                url = 'https://open.jumpco.io/projects/kfsm.html'
-                licenses {
-                    license {
-                        name = 'GNU General Public License v3'
-                        url = 'https://www.gnu.org/licenses/gpl-3.0.en.html'
-                        distribution = 'repo'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'corneil_jumpco'
-                        name = 'Corneil @ JumpCO'
-                        organization = 'Open JumpCO'
-                        organizationUrl = 'https://open.jumpco.io'
-                    }
-                }
-
-                scm {
-                    url = project.vcs
-                }
+                username = providers.environmentVariable('GITHUB_ACTOR').getOrElse('')
+                password = providers.environmentVariable('GITHUB_TOKEN').getOrElse('')
             }
         }
     }
 }
 
-signing {
-    sign publishing.publications.mavenJava
+mavenPublishing {
+    publishToMavenCentral()
+    if (providers.gradleProperty('signingInMemoryKey').isPresent()) {
+        signAllPublications()
+    }
+    coordinates(project.group.toString(), rootProject.name, project.version.toString())
+    pom {
+        name = projectName
+        description = projectDescription
+        inceptionYear = '2020'
+        url = "https://github.com/infosmid-org/${rootProject.name}"
+        licenses {
+            license {
+                name = 'The Apache License, Version 2.0'
+                url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution = 'repo'
+            }
+        }
+        developers {
+            developer {
+                id = 'corneil'
+                name = 'Corneil du Plessis'
+                url = 'https://github.com/corneil'
+            }
+        }
+        scm {
+            url = "https://github.com/infosmid-org/${rootProject.name}"
+            connection = "scm:git:git://github.com/infosmid-org/${rootProject.name}.git"
+            developerConnection = "scm:git:ssh://git@github.com/infosmid-org/${rootProject.name}.git"
+        }
+        issueManagement {
+            system = 'GitHub'
+            url = "https://github.com/infosmid-org/${rootProject.name}/issues"
+        }
+    }
+}
+
+tasks.named('test') {
+    useJUnit()
+    testLogging { exceptionFormat = 'full' }
 }
