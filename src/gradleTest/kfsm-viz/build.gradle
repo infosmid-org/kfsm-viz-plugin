@@ -1,5 +1,5 @@
 plugins {
-    id 'org.infosmid.plugins.kfsm-viz'
+    id 'org.infosmid.plugins.kfsm-viz' version '2.0.2-SNAPSHOT'
 }
 
 
