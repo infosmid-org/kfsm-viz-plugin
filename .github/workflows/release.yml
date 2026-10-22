@@ -1,8 +1,4 @@
-# Publishes milestones, release candidates and releases to Maven Central.
-# Push a tag such as v1.0.0, v1.1.0-M1 or v1.1.0-RC1 to start this workflow.
-# The version comes from the tag. The leading "v" is removed.
-# Maven Central does not let you delete or replace a published version.
-name: Release to Maven Central
+name: Release to Maven Central and Gradle Plugins
 
 on:
   push:
@@ -18,7 +14,7 @@ jobs:
     # Optional: add required reviewers to this environment for a manual approval step.
     environment: maven-central
     permissions:
-      contents: read
+      contents: write
       packages: write
     steps:
       - uses: actions/checkout@v7
@@ -49,3 +45,13 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.GPG_PASSPHRASE }}
           GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
           GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
+      - name: Apply version to release notes
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: envsubst < RELEASE_NOTES.md > RELEASE_NOTES_SUBST.md
+      - uses: ncipollo/release-action@v1
+        with:
+          bodyFile: "RELEASE_NOTES_SUBST.md"
+          allowUpdates: true
+          generateReleaseNotes: true

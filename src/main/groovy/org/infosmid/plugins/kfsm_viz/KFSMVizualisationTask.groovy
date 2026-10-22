@@ -1,13 +1,19 @@
 /*
- * Copyright (c) 2020-2021. Open JumpCO
+ * Copyright 2020-2026 the original author or authors.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and limitations under the License.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-package org.infosmid.kfsm.gradle
+package org.infosmid.plugins.kfsm_viz
 
 
 import org.infosmid.kfsm.viz.Parser
@@ -52,6 +58,20 @@ class KFSMVizualisationTask extends DefaultTask {
                 }
                 it.outputPlantUmlSimple.text = Visualization.plantUml(fsmContent, false)
             }
+            if(it.outputMermaid != null) {
+                project.logger.lifecycle("${this.name}:creating ${it.outputMermaid}")
+                if (!it.outputMermaid.parentFile.exists()) {
+                    it.outputMermaid.parentFile.mkdirs()
+                }
+                it.outputMermaid.text = Visualization.mermaidDiagram(fsmContent, true)
+            }
+            if (it.outputMermaidSimple != null) {
+                project.logger.lifecycle("${this.name}:creating ${it.outputMermaidSimple}")
+                if (!it.outputMermaidSimple.parentFile.exists()) {
+                    it.outputMermaidSimple.parentFile.mkdirs()
+                }
+                it.outputMermaidSimple.text = Visualization.mermaidDiagram(fsmContent, false)
+            }
             if (it.outputAsciiDoc != null) {
                 project.logger.lifecycle("${this.name}:creating ${it.outputAsciiDoc}")
                 if (!it.outputAsciiDoc.parentFile.exists()) {
@@ -92,6 +112,20 @@ class KFSMVizualisationTask extends DefaultTask {
                         fileName.contains(".") ? fileName : fileName + ".plantuml"
                 )
             }
+            if (it.isGenerateMermaid || it.mermaidName != null) {
+                def fileName = it.mermaidName ?: it.output ?: "${it.fsmClassName}.mmd"
+                taskParam.outputMermaid = new File(
+                        it.outputFolder ?: project.file("${project.buildDir}/generated"),
+                        fileName.contains(".") ? fileName : fileName + ".mmd"
+                )
+            }
+            if (it.isGenerateMermaidSimple || (it.isGenerateMermaid && it.isGenerateMermaidSimple == null) || it.mermaidName != null) {
+                String fileName = it.mermaidName ?: "${it.output}-simple" ?: "${it.fsmClassName}-simple"
+                taskParam.outputMermaidSimple = new File(
+                        it.outputFolder ?: project.file("${project.buildDir}/generated"),
+                        fileName.contains(".") ? fileName : fileName + ".mmd"
+                )
+            }
             fsmParams.add(taskParam)
             inputFiles.add(taskParam.input)
             if (taskParam.outputAsciiDoc != null) {
@@ -102,6 +136,12 @@ class KFSMVizualisationTask extends DefaultTask {
             }
             if (taskParam.outputPlantUmlSimple != null) {
                 outputFiles.add(taskParam.outputPlantUmlSimple)
+            }
+            if (taskParam.outputMermaid != null) {
+                outputFiles.add(taskParam.outputMermaid)
+            }
+            if (taskParam.outputMermaidSimple != null) {
+                outputFiles.add(taskParam.outputMermaidSimple)
             }
             project.logger.debug("inputFiles:{}", inputFiles)
             project.logger.debug("outputFiles:{}", outputFiles)

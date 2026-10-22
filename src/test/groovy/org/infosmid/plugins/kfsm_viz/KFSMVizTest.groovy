@@ -1,15 +1,22 @@
 /*
- * Copyright (c) 2020-2021. Open JumpCO
+ * Copyright 2020-2026 the original author or authors.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and limitations under the License.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-package org.infosmid.kfsm.gradle.viz
+package org.infosmid.plugins.kfsm_viz
 
 import org.gradle.testkit.runner.GradleRunner
+import org.jetbrains.annotations.NotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -38,7 +45,8 @@ class KFSMVizTest {
         fsm('PacketReaderFSM') {
             input = file('PacketReader.kt')
             output = 'packet-reader'
-            outputFolder = file('generated')            
+            outputFolder = file('generated')
+            isGenerateMermaid = true            
             isGeneratePlantUml = true
             isGenerateAsciidoc = true
         }
@@ -46,6 +54,7 @@ class KFSMVizTest {
             input = file('Turnstile.kt')
             output = 'turnstile'
             outputFolder = file('generated')
+            isGenerateMermaid = true
             isGeneratePlantUml = true
             isGenerateAsciidoc = true
         }            
@@ -53,22 +62,33 @@ class KFSMVizTest {
             input = file('TimeoutSecureTurnstile.kt')
             output = 'secure-turnstile'
             outputFolder = file('generated')
+            isGenerateMermaid = true
+            isGenerateMermaidSimple = false
             isGeneratePlantUml = true
             isGeneratePlantUmlSimple = false
             isGenerateAsciidoc = true
         }
     }
 """
+
+        def stderr = new OutputStreamWriter(System.err)
+        def stdout = new OutputStreamWriter(System.out)
         def result = GradleRunner.create()
                 .withProjectDir(testProjectDir.root)
                 .withArguments('--stacktrace', '-i', 'generateFsmViz')
                 .withPluginClasspath()
                 .withDebug(true)
+                .forwardStdError(stderr)
+                .forwardStdOutput(stdout)
                 .build()
+        stdout.flush()
+        stderr.flush()
 
         assert result.task(":generateFsmViz").outcome == SUCCESS
         println("Temp folder=$buildFile.parent")
         copy(buildFile.parentFile, new File('output'))
+        stdout.flush()
+        stderr.flush()
     }
 
     def copy(File source, File target) {

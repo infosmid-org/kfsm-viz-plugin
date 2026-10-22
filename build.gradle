@@ -31,10 +31,10 @@ gradlePlugin {
     plugins {
         register('kfsmVizPlugin') {
             id = 'org.infosmid.plugins.kfsm-viz'
-            implementationClass = 'org.infosmid.kfsm.gradle.VizPlugin'
+            implementationClass = 'org.infosmid.plugins.kfsm_viz.VizPlugin'
             displayName = projectName
             description = projectDescription
-            tags.set(['fsm', 'kotlin', 'plantuml', 'asciidoc', 'visualize'])
+            tags.set(['fsm', 'kotlin', 'plantuml', 'mermaid', 'state-diagram', 'asciidoc', 'visualize'])
         }
     }
 }

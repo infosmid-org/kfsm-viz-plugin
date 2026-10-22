@@ -3,7 +3,8 @@ plugins { id 'org.infosmid.plugins.kfsm-viz' }
         fsm('PacketReaderFSM') {
             input = file('PacketReader.kt')
             output = 'packet-reader'
-            outputFolder = file('generated')            
+            outputFolder = file('generated')
+            isGenerateMermaid = true            
             isGeneratePlantUml = true
             isGenerateAsciidoc = true
         }
@@ -11,6 +12,7 @@ plugins { id 'org.infosmid.plugins.kfsm-viz' }
             input = file('Turnstile.kt')
             output = 'turnstile'
             outputFolder = file('generated')
+            isGenerateMermaid = true
             isGeneratePlantUml = true
             isGenerateAsciidoc = true
         }            
@@ -18,6 +20,8 @@ plugins { id 'org.infosmid.plugins.kfsm-viz' }
             input = file('TimeoutSecureTurnstile.kt')
             output = 'secure-turnstile'
             outputFolder = file('generated')
+            isGenerateMermaid = true
+            isGenerateMermaidSimple = false
             isGeneratePlantUml = true
             isGeneratePlantUmlSimple = false
             isGenerateAsciidoc = true
