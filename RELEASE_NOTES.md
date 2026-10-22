@@ -1,4 +1,4 @@
-# 🚀 {{VERSION}}
+# 🚀 Version: ${VERSION}
 
 ## What's New
 
@@ -9,6 +9,6 @@
 Gradle: 
 ```groovy
 plugins { 
-    id 'org.infosmid.plugins.kfsm-viz' version '2.0.2'
+    id 'org.infosmid.plugins.kfsm-viz' version '${VERSION}'
 }
 ```

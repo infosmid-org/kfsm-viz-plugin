@@ -49,7 +49,7 @@ jobs:
         shell: bash
         env:
           VERSION: ${{ steps.version.outputs.version }}
-        run: envsubst < RELEASE_NOTES.md > RELEASE_NOTES_SUBST.md
+        run: sh ./update-release-notes.sh "RELEASE_NOTES_SUBST.md"
       - uses: ncipollo/release-action@v1
         with:
           bodyFile: "RELEASE_NOTES_SUBST.md"
