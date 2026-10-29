@@ -4,6 +4,7 @@ plugins {
     id 'maven-publish'
     alias(libs.plugins.maven.publish)
     alias(libs.plugins.gradle.plugin.publish)
+    alias(libs.plugins.asciidoctor)
 }
 
 group = 'org.infosmid.plugins'
@@ -11,18 +12,18 @@ def getVersionFromFile() {
     return new File(rootProject.projectDir, 'version.txt').text.trim()
 }
 version = providers.gradleProperty('releaseVersion').getOrNull() ?: getVersionFromFile()
-description = 'KFSM Visualization plugin for plantuml and asciidoc'
 def projectName = 'KFSM Visualization plugin'
-def projectDescription = project.description
+def projectDescription = 'KFSM Visualization plugin for plantuml and asciidoc'
+description = projectDescription
 
 repositories {
     mavenLocal()
     mavenCentral()
 }
-
-tasks.withType(JavaCompile).configureEach {
-    options.release = 17
-    options.encoding = 'UTF-8'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 gradlePlugin {
@@ -100,3 +101,63 @@ tasks.named('test') {
     useJUnit()
     testLogging { exceptionFormat = 'full' }
 }
+
+// User guide is README.adoc rendered as index.html
+// Stage README.adoc with the generated diagrams it includes, so the source dir overlaps no other task output
+def guideSrc = layout.buildDirectory.dir('guide-src')
+def guideSrcTask = tasks.register('guideSrc', Sync) {
+    from(projectDir) { include 'README.adoc' }
+    from(projectDir) {
+        include 'output/generated/**'
+    }
+    into guideSrc
+}
+
+asciidoc {
+    publications {
+        main {
+            sourceSet {
+                sourceDir = guideSrc.get().asFile.path
+                sources {
+                    include 'README.adoc'
+                }
+                attributes {
+                    addAll 'toc': 'left',
+                        'idprefix': '',
+                        'idseparator': '-'
+                }
+                missingIncludesAreFatal()
+            }
+            output 'asciidoctorj', 'html'
+        }
+    }
+}
+
+tasks.named('asciidoctorHtml') {
+    dependsOn guideSrcTask
+}
+
+// README.adoc references the root *.svg files; the guide needs them next to index.html
+tasks.register('siteDocsGuide', Sync) {
+    from(tasks.named('asciidoctorHtml')) {
+        include 'README.html'
+        rename 'README.html', 'index.html'
+    }
+    from(projectDir) { include '*.svg' }
+    into layout.buildDirectory.dir('site-docs/guide')
+}
+
+// Properties read by gradle/site-docs.gradle (siteDocsZip); must be set before it is applied.
+ext {
+    siteDocsTitle       = projectName
+    siteDocsSummary     = projectDescription
+    siteDocsGuideTask   = 'siteDocsGuide'
+    siteDocsApiTask     = 'groovydoc'
+    siteDocsPublication = 'pluginMaven'
+    siteDocsArtifactId  = rootProject.name
+    siteDocsGroupId     = 'org.infosmid'
+    siteDocsTags        = ['Gradle', 'Kotlin', 'FSM', 'PlantUML', 'Asciidoc', 'Mermaid']
+    siteDocsLicense     = 'Apache-2.0'
+    siteDocsSourceUrl   = "https://github.com/infosmid-org/${rootProject.name}".toString()
+}
+apply from: "$rootProject.projectDir/gradle/site-docs.gradle"

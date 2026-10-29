@@ -1,7 +1,8 @@
 [versions]
+asciidoctor-plugin = "5.0.3"
 gradle-plugin-publish = "2.2.1"
 maven-publish-plugin = "0.37.0"
-kfsm-viz = "2.0.1"
+kfsm-viz = "2.0.2"
 junit = "4.13.2"
 assertj = "3.27.7"
 
@@ -11,5 +12,6 @@ junit = { module = "junit:junit", version.ref = "junit" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 
 [plugins]
+asciidoctor = { id = "org.asciidoctor.jvm", version.ref = "asciidoctor-plugin" }
 gradle-plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "gradle-plugin-publish" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish-plugin" }
